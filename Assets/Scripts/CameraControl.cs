@@ -9,9 +9,9 @@ public class CameraControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
+        gameManager = GameManager.gameManager;
         grid = gameManager.grid;
-        transform.position = new Vector3(grid[grid.GetLength(0) / 2, grid.GetLength(0) / 2].transform.position.x, grid[grid.GetLength(0) / 2, grid.GetLength(0) / 2].transform.position.y, -10);
+        transform.position = new Vector3(grid[grid.GetLength(0) / 2, grid.GetLength(0) / 2].transform.position.x, grid[grid.GetLength(0) / 2, grid.GetLength(0) / 3].transform.position.y, -10);
     }
 
     // Update is called once per frame
