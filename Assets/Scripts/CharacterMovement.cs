@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CharacterMovement : MonoBehaviour
 {
@@ -19,7 +21,8 @@ public class CharacterMovement : MonoBehaviour
 	int moveLimitTemp;
 	bool canAttack;
 
-
+	public GameObject copy;
+	GameObject copyTemp;
 
 	public void TurnReset()
 	{
@@ -34,13 +37,18 @@ public class CharacterMovement : MonoBehaviour
 	}
 	public void Select()
 	{
-		if ((moveLimitTemp > 0)||(canAttack))
+		if ((moveLimitTemp > 0) || (canAttack))
 		{
 			if (!isAttachedToPointer) // start moving
 			{
 				isAttachedToPointer = true;
+				CreateCopy();
 				HighlightTiles(GetEmptyTiles(), new Color(0.75f, 1f, 0.5f));
-				HighlightTiles(GetEnemyTilesInAttackRange(), new Color(1, 0f, 0f));
+				if (canAttack)
+				{
+					HighlightTiles(GetEnemyTilesInAttackRange(), new Color(1, 0f, 0f));
+				}
+
 
 			}
 			else
@@ -53,7 +61,14 @@ public class CharacterMovement : MonoBehaviour
 					moveLimitTemp -= Math.Abs(position.x - GetComponentInParent<Tile>().position.x) + Math.Abs(position.y - GetComponentInParent<Tile>().position.y);
 					position = GetComponentInParent<Tile>().position;
 					UnHighlightTiles();
-
+					Destroy(copyTemp);
+				}
+				else if (GetEnemyTilesInAttackRange().Contains(GetNearestTile()) && canAttack)
+				{
+					isAttachedToPointer = false;
+					UnHighlightTiles();
+					Attack(GetNearestTile().GetComponentInChildren<EnemyAI>());
+					Destroy(copyTemp);
 
 				}
 
@@ -66,7 +81,7 @@ public class CharacterMovement : MonoBehaviour
 		float minDist = Mathf.Infinity;
 		foreach (GameObject t in gameManager.grid)
 		{
-			float dist = Vector3.Distance(t.transform.position, transform.position);
+			float dist = Vector3.Distance(t.transform.position, copyTemp.transform.position);
 			if (dist < minDist)
 			{
 				nearestTile = t;
@@ -106,10 +121,19 @@ public class CharacterMovement : MonoBehaviour
 		}
 	}
 
+	void CreateCopy()
+	{
+		copyTemp = Instantiate(copy, transform.position, new Quaternion());
+		copyTemp.transform.localScale = transform.localScale;
+		copyTemp.GetComponent<SpriteRenderer>().sprite = gameObject.GetComponent<SpriteRenderer>().sprite;
+		copyTemp.GetComponent<SpriteRenderer>().color = new Color(gameObject.GetComponent<SpriteRenderer>().color.r, gameObject.GetComponent<SpriteRenderer>().color.g, gameObject.GetComponent<SpriteRenderer>().color.b, 0.5f);
+		copyTemp.GetComponent<Copy>().parent = this;
+	}
 	// attacking
 
-	void Attack(GameObject target)
+	void Attack(EnemyAI target)
 	{
+		target.TakingDamage(damage);
 		canAttack = false;
 	}
 	List<GameObject> GetEnemyTilesInAttackRange()
@@ -130,60 +154,91 @@ public class CharacterMovement : MonoBehaviour
 					}
 					else // check if there is any obstacle between the player character and the enemy
 					{
-						bool hasObstacle = false;
 
-						if (position.x == tileScript.position.x)
+						if (position.x == tileScript.position.x && tileScript.position.y > position.y)
 						{
+							bool hasObstacles = false;
 							// horizontal right
 							for (int y = position.y + 1; y < tileScript.position.y; y++)
 							{
 								// if the in-between tile has anything
-								if (gameManager.grid[position.x, y].transform.childCount >= 1)
+								if (gameManager.grid[position.x, y].transform.childCount > 1)
 								{
-									hasObstacle = true;
+									Debug.Log("Obstacle at " + position.x + "," + y);
+									hasObstacles = true;
 								}
 							}
+							if (!hasObstacles)
+							{
+								enemyTiles.Add(tile);
+							}
+						}
+						if (position.x == tileScript.position.x && tileScript.position.y < position.y)
+						{
+							bool hasObstacles = false;
 							// horizontal left
 							for (int y = position.y - 1; y > tileScript.position.y; y--)
 							{
 								// if the in-between tile has anything
-								if (gameManager.grid[position.x, y].transform.childCount >= 1)
+								if (gameManager.grid[position.x, y].transform.childCount > 1)
 								{
-									hasObstacle = true;
+									Debug.Log("Obstacle at " + position.x + "," + y);
+									hasObstacles = true;
 								}
 							}
-
+							if (!hasObstacles)
+							{
+								enemyTiles.Add(tile);
+							}
 						}
-						else if (position.y == tileScript.position.y)
+
+						if (position.y == tileScript.position.y && tileScript.position.x > position.x)
 						{
+							bool hasObstacles = false;
 							// vertical up
 							for (int x = position.x + 1; x < tileScript.position.x; x++)
 							{
 								// if the in-between tile has anything
-								if (gameManager.grid[x, position.y].transform.childCount >= 1)
+								if (gameManager.grid[x, position.y].transform.childCount > 1)
 								{
-									hasObstacle = true;
+									Debug.Log("Obstacle at " + x + "," + position.y);
+									hasObstacles = true;
 								}
 							}
+							if (!hasObstacles)
+							{
+								enemyTiles.Add(tile);
+							}
+						}
+						if (position.y == tileScript.position.y && tileScript.position.x < position.x)
+						{
+							bool hasObstacles = false;
 							// vertical down
 							for (int x = position.x - 1; x > tileScript.position.x; x--)
 							{
 								// if the in-between tile has anything
-								if (gameManager.grid[x, position.y].transform.childCount >= 1)
+								if (gameManager.grid[x, position.y].transform.childCount > 1)
 								{
-									hasObstacle = true;
+									Debug.Log("Obstacle at " + x + "," + position.y);
+									hasObstacles = true;
 								}
 							}
+							if (!hasObstacles)
+							{
+								enemyTiles.Add(tile);
+							}
 						}
-						if (!hasObstacle)
-						{
-							enemyTiles.Add(tile);
-						}
+
 					}
 
 				}
 			}
 		}
+		foreach (GameObject tile in enemyTiles)
+		{
+			Debug.Log(tile.GetComponent<Tile>().position);
+		}
+
 		return enemyTiles;
 	}
 
@@ -196,9 +251,9 @@ public class CharacterMovement : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if (isAttachedToPointer)
+		if (isAttachedToPointer && copyTemp != null)
 		{
-			transform.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
+			copyTemp.transform.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
 		}
 	}
 }

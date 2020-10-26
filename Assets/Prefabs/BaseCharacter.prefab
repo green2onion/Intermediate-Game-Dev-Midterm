@@ -101,6 +101,7 @@ MonoBehaviour:
   damage: 0
   ignoreObstacle: 0
   moveLimit: 4
+  copy: {fileID: 306461978711539319, guid: 08c265e4e027de241b3762b477ffd990, type: 3}
 --- !u!61 &5873410467457511613
 BoxCollider2D:
   m_ObjectHideFlags: 0
