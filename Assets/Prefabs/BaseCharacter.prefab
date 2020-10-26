@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5333622628779300959}
   - component: {fileID: 5873410467457511613}
   m_Layer: 0
-  m_Name: PlayerCharacter
+  m_Name: BaseCharacter
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -95,6 +95,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0e9b026a6892c04fa6631f2e245e809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 
+  attackRange: 0
+  HP: 0
+  damage: 0
+  ignoreObstacle: 0
   moveLimit: 4
 --- !u!61 &5873410467457511613
 BoxCollider2D:

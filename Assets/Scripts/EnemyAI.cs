@@ -5,9 +5,7 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    public int HP;
     public int moveLimit;
-    public int damage;
     public (int x, int y) position;
     GameManager gameManager;
     void Death()
@@ -22,7 +20,11 @@ public class EnemyAI : MonoBehaviour
         {
             if (Math.Abs(position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(position.y - tile.GetComponent<Tile>().position.y) <= moveLimit)
             {
-                availableTiles.Add(tile);
+                if ((tile.GetComponentInChildren<CharacterMovement>() == null) && (tile.GetComponentInChildren<EnemyAI>() == null))
+                {
+                    availableTiles.Add(tile);
+                }
+
             }
         }
         return availableTiles;
@@ -56,15 +58,30 @@ public class EnemyAI : MonoBehaviour
             tile.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
         }
     }
+
+    List<GameObject> GetNearbyCharsTiles()
+    {
+        List<GameObject> nearbyChars = new List<GameObject>();
+        foreach (GameObject tile in GetAvailableTiles())
+        {
+            if (tile.GetComponentsInChildren<CharacterMovement>() != null)
+            {
+                nearbyChars.Add(tile);
+            }
+        }
+
+        return nearbyChars;
+    }
     // Start is called before the first frame update
     void Start()
     {
         gameManager = GameManager.gameManager;
+        position = GetComponentInParent<Tile>().position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
