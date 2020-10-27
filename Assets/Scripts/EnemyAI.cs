@@ -23,7 +23,8 @@ public class EnemyAI : MonoBehaviour
 		tileAdjacentToTarget = FindNearestTileAdjacentToTarget(availableTiles);
 		Debug.Log("my destination is " + tileAdjacentToTarget.GetComponent<Tile>().position.ToString());
 		isMoving = true;
-
+		reachedtileAdjacentToTarget = false;
+		turnFinished = false;
 	}
 	public void TakingDamage(int damage)
 	{
@@ -186,8 +187,16 @@ public class EnemyAI : MonoBehaviour
 				isMoving = false;
 				transform.localPosition = new Vector3(0, 0.4f, 0);
 				Debug.Log("arrived at " + target.GetComponent<Tile>().position);
+				reachedtileAdjacentToTarget = true;
 			}
 		}
+		else if (reachedtileAdjacentToTarget && !turnFinished)
+		{
+			Attack(target);
+			gameManager.NextEnemy();
+			turnFinished = true;
+		}
+
 	}
 
 }
