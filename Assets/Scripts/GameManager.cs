@@ -96,6 +96,7 @@ public class GameManager : MonoBehaviour
             enemy.transform.localPosition = new Vector3(0, 0.4f, 0);
             activeEnemies.Add(enemy);
             enemy.GetComponent<EnemyAI>().position = position;
+            enemy.GetComponent<EnemyAI>().gameManager = this;
         }
     }
     public void NextTurn()
@@ -107,6 +108,10 @@ public class GameManager : MonoBehaviour
             g.GetComponent<CharacterMovement>().TurnReset();
         }
         SpawnEnemies();
+        foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+		{
+            enemy.GetComponent<EnemyAI>().TurnStart();
+		}
 
     }
     public void SelectFromMenu(string type)

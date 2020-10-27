@@ -121,6 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8497c2f75c36a9343b01d00b7760b214, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HP: 3
   moveLimit: 2
-  damage: 1
+  HP: 3
+  gameManager: {fileID: 0}
+  speed: 2
+  turnFinished: 0
