@@ -19,7 +19,9 @@ public class EnemyAI : MonoBehaviour
 	{
 		List<GameObject> availableTiles = GetAvailableTiles();
 		target = FindNearestTarget(GetNearbyBuildingTiles(), GetNearbyCharsTiles());
-		tileAdjacentToTarget = FindNearestTileAdjacentToTarget(FindTilesAdjacentToTarget(target, availableTiles));
+		Debug.Log("my target is " + target.GetComponent<Tile>().position.ToString());
+		tileAdjacentToTarget = FindNearestTileAdjacentToTarget(availableTiles);
+		Debug.Log("my destination is " + tileAdjacentToTarget.GetComponent<Tile>().position.ToString());
 		isMoving = true;
 
 	}
@@ -40,46 +42,19 @@ public class EnemyAI : MonoBehaviour
 
 	}
 
-	bool GoToTarget(GameObject target)
+	void GoToTarget(GameObject target)
 	{
-		Debug.Log("my destination is " + target.GetComponent<Tile>().position.ToString());
-		if (transform.position.x != target.transform.position.x)
-		{
-			MoveX(target);
-			return false;
-		}
-		else if (transform.position.y != target.transform.position.y)
-		{
-			MoveY(target);
-			return false;
-		}
-		else
-		{
-			transform.parent = GetNearestTile().transform;
-			transform.localPosition = new Vector3(0, 0.4f, 0);
-			position = GetComponentInParent<Tile>().position;
-			return true;
-		}
+
+		float interpolation = speed * Time.deltaTime;
+		Vector3 position = transform.position;
+		position.x = Mathf.Lerp(transform.position.x, target.transform.position.x, interpolation);
+		position.y = Mathf.Lerp(transform.position.y, target.transform.position.y + 0.4f, interpolation);
+		transform.position = position;
+		transform.parent = target.transform;
+		this.position = GetComponentInParent<Tile>().position;
 
 	}
-	void MoveX(GameObject target)
-	{
-		Debug.Log("is moving X");
-		float interpolation = speed * Time.deltaTime;
-		Vector3 position = transform.position;
-		position.x = Mathf.Lerp(transform.position.x, target.transform.position.x, interpolation);
-		position.y = Mathf.Lerp(transform.position.y, target.transform.position.y, interpolation);
-		transform.position = position;
-	}
-	void MoveY(GameObject target)
-	{
-		Debug.Log("is moving Y");
-		float interpolation = speed * Time.deltaTime;
-		Vector3 position = transform.position;
-		position.x = Mathf.Lerp(transform.position.x, target.transform.position.x, interpolation);
-		position.y = Mathf.Lerp(transform.position.y, target.transform.position.y, interpolation);
-		transform.position = position;
-	}
+
 
 	GameObject FindNearestTarget(List<GameObject> buildings, List<GameObject> players)
 	{
@@ -100,49 +75,28 @@ public class EnemyAI : MonoBehaviour
 
 		return nearestTarget;
 	}
-	List<GameObject> FindTilesAdjacentToTarget(GameObject target, List<GameObject> availableTiles)
+	GameObject FindNearestTileAdjacentToTarget(List<GameObject> availableTiles)
 	{
 		List<GameObject> adjacentTiles = new List<GameObject>();
-		foreach (GameObject tile in availableTiles)
-		{
-			if (Math.Abs(target.GetComponent<Tile>().position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(target.GetComponent<Tile>().position.y - tile.GetComponent<Tile>().position.y) <= 1) // nearby within 1 tile
-			{
-				adjacentTiles.Add(tile);
-			}
-		}
-
-		return adjacentTiles;
-	}
-	GameObject FindNearestTileAdjacentToTarget(List<GameObject> adjacentTiles)
-	{
 		GameObject nearestTarget = null;
 		float minDist = Mathf.Infinity;
-		foreach (GameObject tile in adjacentTiles)
+		foreach (GameObject tile in availableTiles)
 		{
-			float dist = Math.Abs(position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(position.y - tile.GetComponent<Tile>().position.y);
-			if (dist < minDist)
+			if (tile.transform.childCount <= 1)
 			{
-				nearestTarget = tile;
-				minDist = dist;
+				float dist = Math.Abs(target.GetComponent<Tile>().position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(target.GetComponent<Tile>().position.y - tile.GetComponent<Tile>().position.y);
+				if (dist < minDist)
+				{
+					nearestTarget = tile;
+					minDist = dist;
+				}
 			}
+
 		}
 
 		return nearestTarget;
 	}
-	List<GameObject> GetAvailableTiles()
-	{
-		List<GameObject> availableTiles = new List<GameObject>();
-		foreach (GameObject tile in gameManager.grid)
-		{
-			if (Math.Abs(position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(position.y - tile.GetComponent<Tile>().position.y) <= moveLimit)
-			{
 
-				availableTiles.Add(tile);
-
-			}
-		}
-		return availableTiles;
-	}
 	GameObject GetNearestTile()
 	{
 		GameObject nearestTile = null;
@@ -156,6 +110,7 @@ public class EnemyAI : MonoBehaviour
 				minDist = dist;
 			}
 		}
+		//Debug.Log("nearest tile position: " + nearestTile.GetComponent<Tile>().position);
 		return nearestTile;
 	}
 	void HighlightAvailableTiles(List<GameObject> tiles)
@@ -172,29 +127,42 @@ public class EnemyAI : MonoBehaviour
 			tile.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
 		}
 	}
-
-	List<GameObject> GetNearbyCharsTiles()
+	List<GameObject> GetAvailableTiles()
 	{
-		List<GameObject> nearbyChars = new List<GameObject>();
-		foreach (GameObject tile in GetAvailableTiles())
+		List<GameObject> availableTiles = new List<GameObject>();
+		foreach (GameObject tile in gameManager.grid)
 		{
-			if (tile.GetComponentsInChildren<CharacterMovement>() != null)
+			if (Math.Abs(position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(position.y - tile.GetComponent<Tile>().position.y) <= moveLimit)
 			{
-				nearbyChars.Add(tile);
+
+				availableTiles.Add(tile);
+
 			}
 		}
+		return availableTiles;
+	}
+	List<GameObject> GetNearbyCharsTiles()
+	{
+		List<GameObject> nearbyCharTiles = new List<GameObject>();
+		foreach (GameObject player in gameManager.players)
+		{
+			//if (Math.Abs(position.x - player.GetComponent<CharacterMovement>().position.x) + Math.Abs(position.y - player.GetComponent<CharacterMovement>().position.y) <= moveLimit)
+			//{
+				nearbyCharTiles.Add(player.transform.parent.gameObject);
+			//}
+		}
 
-		return nearbyChars;
+		return nearbyCharTiles;
 	}
 	List<GameObject> GetNearbyBuildingTiles()
 	{
 		List<GameObject> nearbyBuildings = new List<GameObject>();
-		foreach (GameObject tile in GetAvailableTiles())
+		foreach (GameObject building in gameManager.buildings)
 		{
-			if (tile.GetComponentsInChildren<Building>() != null)
-			{
-				nearbyBuildings.Add(tile);
-			}
+			//if (Math.Abs(position.x - building.GetComponent<Building>().position.x) + Math.Abs(position.y - building.GetComponent<Building>().position.y) <= moveLimit)
+			//{
+				nearbyBuildings.Add(building.transform.parent.gameObject);
+			//}
 		}
 
 		return nearbyBuildings;
@@ -211,19 +179,15 @@ public class EnemyAI : MonoBehaviour
 	{
 		if (isMoving)
 		{
-
-				GoToTarget(tileAdjacentToTarget);
-				//isMoving = false;
-				
-
+			GoToTarget(tileAdjacentToTarget);
+			//Debug.Log("target tile position: " + target.GetComponent<Tile>().position);
+			if (GetNearestTile().GetComponent<Tile>().position == tileAdjacentToTarget.GetComponent<Tile>().position)
+			{
+				isMoving = false;
+				transform.localPosition = new Vector3(0, 0.4f, 0);
+				Debug.Log("arrived at " + target.GetComponent<Tile>().position);
 			}
 		}
-	/*
-		else if (reachedtileAdjacentToTarget)
-		{
-			Attack(target);
-			turnFinished = true;
-		}
 	}
-	*/
+
 }

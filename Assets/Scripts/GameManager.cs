@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     public GameObject[] enemies;
     List<GameObject> activeEnemies;
     public GameObject building;
-    List<GameObject> buildings;
+    public List<GameObject> buildings;
     public Text turnsText;
     void SpawnGrid()
     {

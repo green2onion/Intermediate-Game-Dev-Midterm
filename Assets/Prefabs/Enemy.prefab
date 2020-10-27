@@ -124,5 +124,5 @@ MonoBehaviour:
   moveLimit: 2
   HP: 3
   gameManager: {fileID: 0}
-  speed: 2
+  speed: 0.5
   turnFinished: 0
