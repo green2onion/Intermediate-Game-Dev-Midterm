@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.UI;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class CharacterMovement : MonoBehaviour
 {
+	Slider HPSlider;
 	public string type;
 	public int attackRange;
 	public int HP;
+	int HPTemp;
+	bool isDead = false;
 	public int damage;
 	public bool ignoreObstacle;
 
@@ -37,43 +39,47 @@ public class CharacterMovement : MonoBehaviour
 	}
 	public void Select()
 	{
-		if ((moveLimitTemp > 0) || (canAttack))
+		if (!isDead)
 		{
-			if (!isAttachedToPointer) // start moving
+			if ((moveLimitTemp > 0) || (canAttack))
 			{
-				isAttachedToPointer = true;
-				CreateCopy();
-				HighlightTiles(GetEmptyTiles(), new Color(0.75f, 1f, 0.5f));
-				if (canAttack)
+				if (!isAttachedToPointer) // start moving
 				{
-					HighlightTiles(GetEnemyTilesInAttackRange(), new Color(1, 0f, 0f));
-				}
+					isAttachedToPointer = true;
+					CreateCopy();
+					HighlightTiles(GetEmptyTiles(), new Color(0.75f, 1f, 0.5f));
+					if (canAttack)
+					{
+						HighlightTiles(GetEnemyTilesInAttackRange(), new Color(1, 0f, 0f));
+					}
 
-
-			}
-			else
-			{
-				if (GetEmptyTiles().Contains(GetNearestTile())) // end moving
-				{
-					isAttachedToPointer = false;
-					transform.parent = GetNearestTile().transform;
-					transform.localPosition = new Vector3(0, 0.4f, 0);
-					moveLimitTemp -= Math.Abs(position.x - GetComponentInParent<Tile>().position.x) + Math.Abs(position.y - GetComponentInParent<Tile>().position.y);
-					position = GetComponentInParent<Tile>().position;
-					UnHighlightTiles();
-					Destroy(copyTemp);
-				}
-				else if (GetEnemyTilesInAttackRange().Contains(GetNearestTile()) && canAttack)
-				{
-					isAttachedToPointer = false;
-					UnHighlightTiles();
-					Attack(GetNearestTile().GetComponentInChildren<EnemyAI>());
-					Destroy(copyTemp);
 
 				}
+				else
+				{
+					if (GetEmptyTiles().Contains(GetNearestTile())) // end moving
+					{
+						isAttachedToPointer = false;
+						transform.parent = GetNearestTile().transform;
+						transform.localPosition = new Vector3(0, 0.4f, 0);
+						moveLimitTemp -= Math.Abs(position.x - GetComponentInParent<Tile>().position.x) + Math.Abs(position.y - GetComponentInParent<Tile>().position.y);
+						position = GetComponentInParent<Tile>().position;
+						UnHighlightTiles();
+						Destroy(copyTemp);
+					}
+					else if (GetEnemyTilesInAttackRange().Contains(GetNearestTile()) && canAttack)
+					{
+						isAttachedToPointer = false;
+						UnHighlightTiles();
+						Attack(GetNearestTile().GetComponentInChildren<EnemyAI>());
+						Destroy(copyTemp);
 
+					}
+
+				}
 			}
 		}
+
 	}
 	GameObject GetNearestTile()
 	{
@@ -241,11 +247,23 @@ public class CharacterMovement : MonoBehaviour
 
 		return enemyTiles;
 	}
-
+	public void TakeDamage(int damage)
+	{
+		HPTemp -= damage;
+		//Debug.Log(type + " HP is" + HPTemp.ToString());
+		if (HPTemp <= 0)
+		{
+			isDead = true;
+		}
+	}
 	// Start is called before the first frame update
 	void Start()
 	{
 		gameManager = GameManager.gameManager;
+		HPTemp = HP;
+		HPSlider = GameObject.Find("HP Bar " + type).GetComponent<Slider>();
+		HPSlider.maxValue = HP;
+		HPSlider.value = HPTemp;
 	}
 
 	// Update is called once per frame
@@ -255,5 +273,6 @@ public class CharacterMovement : MonoBehaviour
 		{
 			copyTemp.transform.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
 		}
+		HPSlider.value = HPTemp;
 	}
 }

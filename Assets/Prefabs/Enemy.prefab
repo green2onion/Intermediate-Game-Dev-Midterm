@@ -125,4 +125,5 @@ MonoBehaviour:
   HP: 3
   gameManager: {fileID: 0}
   speed: 0.5
+  damage: 1
   turnFinished: 0

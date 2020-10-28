@@ -2283,6 +2283,7 @@ MonoBehaviour:
   - {fileID: 4682483189532536104, guid: 76d5e8d772d42a84cb729a63bd7de72b, type: 3}
   building: {fileID: 8629850194333546290, guid: 854fd7f41c5a321499b0321ef46d967a,
     type: 3}
+  buildings: []
   turnsText: {fileID: 1913360069}
 --- !u!4 &1795136568
 Transform:

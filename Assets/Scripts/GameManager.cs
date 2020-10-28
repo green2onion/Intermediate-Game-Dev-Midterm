@@ -142,6 +142,12 @@ public class GameManager : MonoBehaviour
 			}
 		}
 	}
+
+	public void TakeDamage(int damage)
+	{
+		levelHPTemp -= damage;
+		levelHP.value = levelHPTemp;
+	}
 	// Start is called before the first frame update
 	void Awake()
 	{
@@ -158,10 +164,11 @@ public class GameManager : MonoBehaviour
 		NextTurn();
 		levelHPTemp = levelHPMax;
 		levelHP.maxValue = levelHPMax;
+		levelHP.value = levelHPTemp;
 	}
 	// Update is called once per frame
 	void Update()
 	{
-		levelHP.value = levelHPTemp;
+		
 	}
 }

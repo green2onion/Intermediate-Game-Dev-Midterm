@@ -10,6 +10,7 @@ public class EnemyAI : MonoBehaviour
 	public int HP;
 	public GameManager gameManager;
 	public float speed;
+	public int damage;
 	bool isMoving = false;
 	bool reachedtileAdjacentToTarget = false;
 	public bool turnFinished = false;
@@ -19,9 +20,9 @@ public class EnemyAI : MonoBehaviour
 	{
 		List<GameObject> availableTiles = GetAvailableTiles();
 		target = FindNearestTarget(GetNearbyBuildingTiles(), GetNearbyCharsTiles());
-		Debug.Log("my target is " + target.GetComponent<Tile>().position.ToString());
+		//Debug.Log("my target is " + target.GetComponent<Tile>().position.ToString());
 		tileAdjacentToTarget = FindNearestTileAdjacentToTarget(availableTiles);
-		Debug.Log("my destination is " + tileAdjacentToTarget.GetComponent<Tile>().position.ToString());
+		//Debug.Log("my destination is " + tileAdjacentToTarget.GetComponent<Tile>().position.ToString());
 		isMoving = true;
 		reachedtileAdjacentToTarget = false;
 		turnFinished = false;
@@ -40,7 +41,16 @@ public class EnemyAI : MonoBehaviour
 	}
 	void Attack(GameObject target)
 	{
-
+		if (target.GetComponentInChildren<Building>()!=null)
+		{
+			gameManager.TakeDamage(damage);
+			Debug.Log("attacked" + target.name);
+		}
+		if (target.GetComponentInChildren<CharacterMovement>() != null)
+		{
+			target.GetComponentInChildren<CharacterMovement>().TakeDamage(damage);
+			Debug.Log("attacked" + target.name);
+		}
 	}
 
 	void GoToTarget(GameObject target)
@@ -83,7 +93,7 @@ public class EnemyAI : MonoBehaviour
 		float minDist = Mathf.Infinity;
 		foreach (GameObject tile in availableTiles)
 		{
-			if (tile.transform.childCount <= 1)
+			if (tile.transform.childCount <= 1 || tile == transform.parent.gameObject)
 			{
 				float dist = Math.Abs(target.GetComponent<Tile>().position.x - tile.GetComponent<Tile>().position.x) + Math.Abs(target.GetComponent<Tile>().position.y - tile.GetComponent<Tile>().position.y);
 				if (dist < minDist)
@@ -186,7 +196,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				isMoving = false;
 				transform.localPosition = new Vector3(0, 0.4f, 0);
-				Debug.Log("arrived at " + target.GetComponent<Tile>().position);
+				//Debug.Log("arrived at " + target.GetComponent<Tile>().position);
 				reachedtileAdjacentToTarget = true;
 			}
 		}
