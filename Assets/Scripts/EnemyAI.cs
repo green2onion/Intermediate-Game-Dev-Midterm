@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
 	public bool turnFinished = false;
 	GameObject tileAdjacentToTarget;
 	GameObject target;
+	public GameObject explosionSprite;
 	public void TurnStart()
 	{
 		List<GameObject> availableTiles = GetAvailableTiles();
@@ -41,7 +42,11 @@ public class EnemyAI : MonoBehaviour
 	}
 	void Attack(GameObject target)
 	{
-		if (target.GetComponentInChildren<Building>()!=null)
+		GetComponent<AudioSource>().Play();
+		GameObject explosion = Instantiate(explosionSprite, target.transform);
+		explosion.transform.localScale = new Vector3(1, 1, 1);
+		StartCoroutine(MyCoroutine(explosion));
+		if (target.GetComponentInChildren<Building>() != null)
 		{
 			gameManager.TakeDamage(damage);
 			Debug.Log("attacked" + target.name);
@@ -51,6 +56,13 @@ public class EnemyAI : MonoBehaviour
 			target.GetComponentInChildren<CharacterMovement>().TakeDamage(damage);
 			Debug.Log("attacked" + target.name);
 		}
+
+	}
+	IEnumerator MyCoroutine(GameObject explosion)
+	{
+		
+		yield return new WaitForSeconds(1);
+		Destroy(explosion);
 	}
 
 	void GoToTarget(GameObject target)
@@ -159,7 +171,7 @@ public class EnemyAI : MonoBehaviour
 		{
 			//if (Math.Abs(position.x - player.GetComponent<CharacterMovement>().position.x) + Math.Abs(position.y - player.GetComponent<CharacterMovement>().position.y) <= moveLimit)
 			//{
-				nearbyCharTiles.Add(player.transform.parent.gameObject);
+			nearbyCharTiles.Add(player.transform.parent.gameObject);
 			//}
 		}
 
@@ -172,7 +184,7 @@ public class EnemyAI : MonoBehaviour
 		{
 			//if (Math.Abs(position.x - building.GetComponent<Building>().position.x) + Math.Abs(position.y - building.GetComponent<Building>().position.y) <= moveLimit)
 			//{
-				nearbyBuildings.Add(building.transform.parent.gameObject);
+			nearbyBuildings.Add(building.transform.parent.gameObject);
 			//}
 		}
 
@@ -188,6 +200,7 @@ public class EnemyAI : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		GetComponentInChildren<TextMesh>().text = "HP: " + HP.ToString();
 		if (isMoving)
 		{
 			GoToTarget(tileAdjacentToTarget);
@@ -203,8 +216,9 @@ public class EnemyAI : MonoBehaviour
 		else if (reachedtileAdjacentToTarget && !turnFinished)
 		{
 			Attack(target);
-			gameManager.NextEnemy();
 			turnFinished = true;
+			gameManager.NextEnemy();
+
 		}
 
 	}

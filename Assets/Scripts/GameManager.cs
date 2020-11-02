@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -32,7 +33,11 @@ public class GameManager : MonoBehaviour
 	public GameObject building;
 	public List<GameObject> buildings;
 	public Text turnsText;
-	bool turnOver = false;
+	public bool turnOver = true;
+
+	public Canvas youWin;
+	public Canvas youLose;
+	int playerDeaths = 0;
 	void SpawnGrid()
 	{
 		int gridRow = layout.GetLength(0);
@@ -101,34 +106,59 @@ public class GameManager : MonoBehaviour
 	}
 	public void NextTurn()
 	{
-		//if (turnOver)
-		//{
-		turn++;
-		turnsText.text = "Turns Left: " + (turnLimit - turn).ToString();
-		foreach (GameObject g in players)
+		if (turn < 10)
 		{
-			g.GetComponent<CharacterMovement>().TurnReset();
+			if (turnOver)
+			{
+				turnOver = false;
+				turn++;
+				turnsText.text = "Turns Left: " + (turnLimit - turn).ToString();
+				foreach (GameObject g in players)
+				{
+					g.GetComponent<CharacterMovement>().TurnReset();
+				}
+				activeEnemies.Clear();
+				SpawnEnemies();
+				foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+				{
+					activeEnemies.Add(enemy);
+				}
+				activeEnemies[0].GetComponent<EnemyAI>().TurnStart();
+			}
+
 		}
-		activeEnemies.Clear();
-		SpawnEnemies();
-		foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+		else
 		{
-			activeEnemies.Add(enemy);
+			youWin.gameObject.SetActive(true);
 		}
-		activeEnemies[0].GetComponent<EnemyAI>().TurnStart();
-		//}
 
 
 	}
 
+	public void Restart()
+	{
+		SceneManager.LoadScene(0);
+	}
 	public void NextEnemy()
 	{
 		if (activeEnemies.Count > 1)
 		{
 			activeEnemies.RemoveAt(0);
 			activeEnemies[0].GetComponent<EnemyAI>().TurnStart();
-
 		}
+		foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+		{
+			if (enemy.GetComponent<EnemyAI>().turnFinished)
+			{
+				turnOver = true;
+			}
+			else
+			{
+				turnOver = false;
+				break;
+			}
+		}
+
 
 	}
 
@@ -147,6 +177,17 @@ public class GameManager : MonoBehaviour
 	{
 		levelHPTemp -= damage;
 		levelHP.value = levelHPTemp;
+		if (levelHPTemp <= 0)
+		{
+			youLose.gameObject.SetActive(true);
+		}
+	}
+	public void PlayerDeath()
+	{
+		if (playerDeaths >= 3)
+		{
+			youLose.gameObject.SetActive(true);
+		}
 	}
 	// Start is called before the first frame update
 	void Awake()
@@ -169,6 +210,6 @@ public class GameManager : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		
+
 	}
 }

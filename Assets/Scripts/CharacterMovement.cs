@@ -25,7 +25,10 @@ public class CharacterMovement : MonoBehaviour
 
 	public GameObject copy;
 	GameObject copyTemp;
-
+	public GameObject explosionSprite;
+	public Sprite enemy;
+	public Sprite highlight;
+	public Sprite normal;
 	public void TurnReset()
 	{
 		moveLimitTemp = moveLimit;
@@ -41,16 +44,16 @@ public class CharacterMovement : MonoBehaviour
 	{
 		if (!isDead)
 		{
-			if ((moveLimitTemp > 0) || (canAttack))
+			if (gameManager.turnOver && ((moveLimitTemp > 0) || (canAttack)))
 			{
 				if (!isAttachedToPointer) // start moving
 				{
 					isAttachedToPointer = true;
 					CreateCopy();
-					HighlightTiles(GetEmptyTiles(), new Color(0.75f, 1f, 0.5f));
+					HighlightTiles(GetEmptyTiles(), highlight);
 					if (canAttack)
 					{
-						HighlightTiles(GetEnemyTilesInAttackRange(), new Color(1, 0f, 0f));
+						HighlightTiles(GetEnemyTilesInAttackRange(), enemy);
 					}
 
 
@@ -112,18 +115,18 @@ public class CharacterMovement : MonoBehaviour
 		availableTiles.Add(transform.parent.gameObject);
 		return availableTiles;
 	}
-	void HighlightTiles(List<GameObject> tiles, Color color)
+	void HighlightTiles(List<GameObject> tiles, Sprite sprite)
 	{
 		foreach (GameObject tile in tiles)
 		{
-			tile.GetComponent<SpriteRenderer>().color = color;
+			tile.GetComponent<SpriteRenderer>().sprite = sprite;
 		}
 	}
 	void UnHighlightTiles()
 	{
 		foreach (GameObject tile in gameManager.grid)
 		{
-			tile.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
+			tile.GetComponent<SpriteRenderer>().sprite = normal;
 		}
 	}
 
@@ -139,8 +142,13 @@ public class CharacterMovement : MonoBehaviour
 
 	void Attack(EnemyAI target)
 	{
+		GetComponent<AudioSource>().Play();
+		GameObject explosion = Instantiate(explosionSprite, target.transform);
+		StartCoroutine(MyCoroutine(explosion));
+		
 		target.TakingDamage(damage);
 		canAttack = false;
+
 	}
 	List<GameObject> GetEnemyTilesInAttackRange()
 	{
@@ -254,10 +262,22 @@ public class CharacterMovement : MonoBehaviour
 		if (HPTemp <= 0)
 		{
 			isDead = true;
+			
+			gameManager.PlayerDeath();
+			gameObject.SetActive(false);
+			GetComponent<SpriteRenderer>().color = Color.black;
 		}
 	}
-	// Start is called before the first frame update
-	void Start()
+
+
+IEnumerator MyCoroutine(GameObject explosion)
+{
+
+	yield return new WaitForSeconds(1);
+	Destroy(explosion);
+}
+// Start is called before the first frame update
+void Start()
 	{
 		gameManager = GameManager.gameManager;
 		HPTemp = HP;

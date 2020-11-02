@@ -7,6 +7,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7510289561955673798, guid: 808aa913ee622b745aa15701808decbc,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 41a50d7f6bb271b4b9419c5a6f872786, type: 2}
     - target: {fileID: -1258234712010172478, guid: 808aa913ee622b745aa15701808decbc,
         type: 3}
       propertyPath: m_Color.r
@@ -15,13 +20,19 @@ PrefabInstance:
     - target: {fileID: -1258234712010172478, guid: 808aa913ee622b745aa15701808decbc,
         type: 3}
       propertyPath: m_Color.g
-      value: 0.5990566
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -1258234712010172478, guid: 808aa913ee622b745aa15701808decbc,
         type: 3}
       propertyPath: m_Color.b
-      value: 0.9606618
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -1258234712010172478, guid: 808aa913ee622b745aa15701808decbc,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 776546dfd3bcb5c48948ab77e0adb4a9,
+        type: 3}
     - target: {fileID: 1226544489038651818, guid: 808aa913ee622b745aa15701808decbc,
         type: 3}
       propertyPath: m_Name
@@ -95,7 +106,7 @@ PrefabInstance:
     - target: {fileID: 5333622628779300959, guid: 808aa913ee622b745aa15701808decbc,
         type: 3}
       propertyPath: HP
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5333622628779300959, guid: 808aa913ee622b745aa15701808decbc,
         type: 3}
@@ -106,6 +117,21 @@ PrefabInstance:
         type: 3}
       propertyPath: ignoreObstacle
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5333622628779300959, guid: 808aa913ee622b745aa15701808decbc,
+        type: 3}
+      propertyPath: moveLimit
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5873410467457511613, guid: 808aa913ee622b745aa15701808decbc,
+        type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5873410467457511613, guid: 808aa913ee622b745aa15701808decbc,
+        type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 808aa913ee622b745aa15701808decbc, type: 3}
